@@ -47,3 +47,14 @@ sort_buffer_size -> default = 262k -> 2M
 myisam_sort_buffer_size -> default = 8M -> 16M
 read_buffer_size -> default = 131k -> 1M
 read_rnd_buffer_size -> default = 262k -> 1M
+join_buffer_size -> default = 262k -> 2M
+
+Din pacate, ar trebui sa modific si variabile din innodb_... si myisam_... dar ca sa am voie sa fac asta trebuie sa compilez singur mysql din sursa cu flag-ul de --debug pornit
+
+slow_query_log -> default = OFF -> ON
+slow_query_log_file -> default = /var/lib/mysql/$USER-slow.log -> ~/mysql/slowqueries.log
+long_query_time -> default = 10s -> 5s
+log_error -> default = /var/log/mysql/error.log -> /home/alstoian/mysql/error.log
+general_log_file -> default = /var/lib/mysql/USER.log -> /home/alstoian/mysql/general.log
+
+Pentru a vedea log-urile binare (binlog) a bazei de date, trebuie folosit utilitarul mysqlbinlog - mysqlbinlog [options] log_file
