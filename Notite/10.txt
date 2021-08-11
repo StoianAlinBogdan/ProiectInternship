@@ -1,0 +1,14 @@
+Types of SQL:
+- DDL - Data definition - CREATE, ALTER, DROP
+- DML - Data manipulation - INSERT, UPDATE, DELETE
+- DQL - Data query - SELECT
+- DCL - Data control - GRANT, REVOKE
+- TCL - Transaction control - COMMIT, ROLLBACK, SAVEPOINT
+
+DDL:
+	- Unele baze de date implementeaza DDL ca tranzactie, altele nu (Oracle)
+	- Truncate sare peste faza de logging, decupleaza tabela de spatiul utilizat pe disk si astfel este mult mai rapida decat metode de stergere fara DDL. Problema este siguranta.
+	- Oracle ruleaza implicit un commit dupa fiecare comanda DDL. Grija cand rulezi DDL imbricat cu alte comenzi intr-o tranzactie!
+
+
+

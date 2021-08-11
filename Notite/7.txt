@@ -1,0 +1,33 @@
+Data services
+
+Amazon Relational Database Service (AWS RDS)
+
+A managed database is a service in the cloud that clients can pay for and receive access to a database. The provider oversees the database's infrastructure.
+
+AWS Aurora
+DB clusters
+
+AWS ElastiCache
+serviciu de indexare si caching
+
+DynamoDB
+Serverless noSQL database - key-value & document; respects ACID (!)
+
+AWS Athena
+Serviciu serverless pentru analitici direct pe fisiere S3. Foloseste SQL. DDL cu HiveQL, DML cu Presto. Are integrare nu numai cu S3, ci si cu Redshift, RDS si alte baze de date care ruleaza pe EC2.
+
+AWS Redshift
+Serviciu de data warehousing. Fully managed MPP (massively parallel processing). Se integraza cu alte servicii AWS (Athena, EMR, Sagemaker). Poate fi folosit pentru query si join pe date din S3.
+
+AWS Elastic MapReduce
+Simplifica setarea si managemetul unui cluster de componente hadoop si mapreduce. Include spark, presto, flink, hive si altele.
+
+AWS Kinesis
+O alternativa pentru Apache Kafka. Folosit pentru log-uri, metrici, IoT, big data "real time". Data este replicata sincron in 3 AZ-uri.
+
+AWS SageMaker
+- bazat pe notebook-uri python, include tot ce trebuie unui data scientist.
+Exploreaza, curata si eticheteaza date; pregateste, construieste si antreneaza modele.
+
+AWS SQS - Simple Queue Services
+Managed Queuing service. Livrare standard, "cel putin odata". Pana la 14 zile de retentie.

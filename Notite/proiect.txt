@@ -1,0 +1,49 @@
+Idei:
+
+Asigneaza fiecarui precinct adresa si numarul de telefon: https://www1.nyc.gov/site/nypd/bureaus/patrol/precincts-landing.page
+
+NB: Midtown South Precinct = Precinct 14
+Midtown North Precinct = Precinct 18
+Central Park Precinct = Precinct 22
+
+
+Genereaza amenzi pentru Infraction-uri (coloana LAW_CAT)
+Genereaza ani de inchisoare pentru misdemeanor-uri si pentru felonies
+Pentru astea doua pot sa fac slowly changing dimensions cand o sa proiectez data warehouse
+ 
+
+
+idee de viitor: utilizarea myISAM (fara tranzactii sau suport pentru chei straine) pentru data warehouse. pe ala pot sa il optimizez puternic pentru read-uri, iar pe asta principala sa o las echilibrat ca sa nu imi ia un an cand import datele
+
+
+Motive pentru mysql, in ordine crescatoare a pertinentei:
+- a fost prima baza de date pe care am folosit-o si oarecum invatat-o; e placut sa ma intorc la ea acum ca stiu mai multe si sa o folosesc ca un utilizator ceva mai avansat.
+- nu e un lucru rau sa invat o a treia baza de date, pe langa oracle si postgres;
+- mysql este usor de instalat (pe windows)
+- mysql este usor de configurat (oarecum)
+- e open source (scris in C/C++)
+- parte din stiva LAMP (linux, apache, mysql, PHP) [vs. MEAN stack - mongodb, expressjs, angularjs, nodejs]
+-  potrivit business-ului - mysql este utilizat in special pentru aplicatii web si este optimizat pentru accesarea si traficul datelor prin retea; pe langa acestea, contine algoritmi buni de criptare a datelor vehiculate, pentru a mentine securitatea acestora - foarte important pentru o baza de date care stocheaza date personale! 
+- exista tool-uri foarte multe si bune pentru tunarea bazei de date: https://haydenjames.io/mysql-performance-tuning-tips-scripts-tools/
+- are suport atat pentru engine-ul innodb, cat si pentru myisam; diferentele le enumar in alta parte, dar myisam este foarte bun pentru baze de date care implica multe citiri (data warehouse-uri), dar nu confera suport pentru __tranzactii__ si pentru chei straine; asadar, ma gandeam sa folosesc o a doua baza de date cu myisam pentru data warehouse in care sa fac un etl din baza mea de date principala
+
+
+
+pentru a rula mysql:
+sudo service mysql start 
+SAU bin/mysqladmin start
+pentru a conecta la mysql local:
+mysql -u user -p
+pentru restart:
+sudo service mysql restart
+
+variabile tunate:
+surse: https://logicalread.com/optimizing-server-settings-mysql-mc13/ https://www.linode.com/docs/guides/how-to-optimize-mysql-performance-using-mysqltuner/
+https://severalnines.com/database-blog/mysql-performance-cheat-sheet
+
+key_buffer -> default = 16M, recommended: innoDB: 70% physical memory, myISAM: 25%. -> 4G
+innodb_sort_buffer_size -> default = 10M -> 20M
+sort_buffer_size -> default = 262k -> 2M
+myisam_sort_buffer_size -> default = 8M -> 16M
+read_buffer_size -> default = 131k -> 1M
+read_rnd_buffer_size -> default = 262k -> 1M

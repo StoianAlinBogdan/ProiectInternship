@@ -1,0 +1,32 @@
+Sesiunea 2:
+Indexes and access methods
+ 
+CTID (postgres) & ROWID(Oracle):
+2 coloane generate de sistem pentru fiecare rand dintr-o tabela care ajuta la localizarea pe disc in spatiu fizic a unui anumit rand. El ofera informatii referitoare la block-ul si offset-ul la care se afla randul. Offset-ul reprezinta al catalea rand dintr-un bloc este randul dat.
+Indecsii sunt niste structuri separate de tabel, care contin maparea dintre valorile unei coloane si CTID/ROWID unde se afla respectivele valori. Valorile sunt ordonate pentru a face cautarea mai usoara, iar index-ul este organizat in mod ierarhic.
+Ordinea arborilor B:
+Metapage -> root page care contine valorile propriu zise a valorii cautate (de exemplu, statele AL, AZ, CA, DC... MS) si fiecare element acesta pointeaza catre o frunza asociata la un bloc specific, unde stim ca vom gasi numai valori specifice pentru statul nostru cautat.
+
+Avantaje: 
+- pot imbunati viteza de preluare a datelor;
+- pot sa fie folosite in operatiile de sortare / grupare;
+- suport pentru mentinerea constrangerilor de cheie primara / unique
+- se poate evita scanarea tabelei daca index-ul contine toate datele necesare query-ului.
+
+Dezavantaje:
+- scade viteza DML pentru ca si indecsii trebuiesc afectati
+- consuma spatiu si memorie
+- este nevoie de efort aditional pentru mentenanta;
+- pot aparea probleme de performanta (readuri repeatate) 
+
+tipuri de indecsi:
+- simple non-unique b-tree index (tot ce am vorbit pana acum):
+	ceate index ix_emp_state on emp_data(state);
+- compound index:
+	create index ix_emp_st_zip on emp_data(state, zip);
+-unique index:
+	create unique index ix_emp_id on emp_data(id);
+- expression(function) index:
+	create index ix_emp_name_upper on employee_data(upper(name));
+- partial index (postgres only):
+	create index ix_emp_state_north on employee_data(state) where state in ('WA', 'MT', 'ND');

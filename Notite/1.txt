@@ -1,0 +1,42 @@
+/database/spfileorcl.ora
+
+sga_target = maximul de memorie pentru sga; total memorie alocata = sga + pga;
+remote login password file = permiterea de conexiuni la baze de date care nu se afla pe masina locala
+processes
+pga aggregate target = valoarea maxima pentru pga; total memorie alocata = sga + pga;
+open cursors = numarul maxim de cursoare simultan (trebuiesc suficiente resurse pentru crestere)
+nls language, nls territory - setate manual
+local listener = serviciul tnslsnr din windows, cu el se pot stabili conexiuni cu bazele de date.
+enable pluggable database = setata manual pe true la instalare in caz  de intrebari despre multitenant
+dispatchers = tine de conexiunile bazei de date. poate fi privit ca un layer similar cu listenerul, low level, drivere de comunicare cu baza de date, etc.
+diagnostic dest = repository (adr - automatic diagnostic repository) care se refera la diagnostice si loguri, trace file-uri, etc
+dbname = setat manual
+dbdomain = serverele la care se afla baze de date remote se identifica prin domeniu.
+dbblocksize = vine din partea fizica, setabil diferit fata de block size-ul sistemului de operare.
+control files = ...
+compatible = versiuni cu care versiunea curenta este compatibila
+audit trail = audit-urile se pot tine ori local, pe file system, ori in baza de date, ori remote pe un server.
+valorile de sus = sunt strans legate de cele de jos, memorii folosite in sga.
+
+
+start -> oracle - oradb19home1 -> configuration assistant pentru a manipula varii fisiere de configurare / configurari
+
+
+pentru a identifica o instanta de oracle -> resource monitor -> oracle.exe la procese -> oracleserviceORCL - associated handles (threaduri) exista si ruleaza
+se vede si in mscservices - oracleserviceorcl / oracleremexecservicev2 etc.
+
+oracle instance manager - cauta exact ce am discutat mai devreme, serviciul si statusul.
+
+
+in postgres / psql -> \l+ - listeaza toate bazele de date; \du+ - listeaza users; \dt+ - listeaza tabelele; \q - exit
+
+
+
+
+
+POSTGRES
+pgtune.leopard.in.ua
+
+
+
+o tranzactie incepe explicit la mentiunea unui utilizator sau implicit odata cu inceperea unei sesiuni. Inceperea unei tranzactii poate obtine un lock. O tranzactie se incheie ori explicit ori implicit.

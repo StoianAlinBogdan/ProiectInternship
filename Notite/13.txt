@@ -1,0 +1,25 @@
+Continuare PLPGSQL:
+	- se poate face in asa fel incat  functie sa returneze un tabel. Felul in care se face asta este cu keyword-ul "setof" dupa "returns". Acest lucru arata ca functia returneaza un set de randuri de tipul dat dupa keyword-ul "returns". Felul efectiv i ncare se face acest lucru este cu o variabila x de tipul t_mytable%rowtype; apoi se adauga in variabila asta folosind for x in ... loop si apoi return next x; end loop; return;
+	join lateral: ia fiecare linie rezultata dupa select si face un join cu fiecare linie in parte din result set-ul unei functii. Practic, este util pentru un join intre o functie cu return tabelar si o tabela anterioara.
+
+Cursoare:
+	- este un simplu pointer catre rezultatele unui anume query.
+	- se poate controla navigarea printre rezultate.
+	- este util atunci cand un query returneaza un set foarte mare de date, si daca se foloseste o aplicatie care nu are o cantitate foarte mare de memorie, se poate controla numarul de randuri citit odata de acea aplicatie.
+	- tipul lui de date este refcursor
+
+	declaratie:
+		declare 
+		mycursor refcursor;
+		mycursor_b1 scroll cursor for select * from t_candidati; -- bounded cursor
+		mycursor_param no scroll cursor (id_scoala) for SELECT * from t_candidati where id_scoala = 1;
+
+	deschiderea unui cursor (practic, query-ul este executat si putem folosi rezultatele query-ului). Daca cursorul a fost declarat prin prima metoda, query-ul trebuie specificat in faza de deschidere. Altfel, se poate doar cu keyword-ul OPEN mycursor;.
+	Extragerea randurilor din rezultatul oferit de query: FETCH FROM mycursor_b1 INTO some_rec_variable; sau FETCH FROM mycursor_b1 INTO var_col1, var_col2, var_col3; alternativ: FETCH NEXT, PRIOR, LAST, ABSOLUTE; COUNT, RELATIVE COUNT, FORWARD n, BACKWARD FROM mycursor_b1.
+	Miscarea cursorului fara extragere: MOVE; MOVE LAST FROM cursor; MOVE RELATIVE -2 FROM CURS2; MOVE FORWARD 2 FROM CURS2;
+	Inchiderea cursorului (eliberarea resurselor folosite de query) - Close curs1;
+
+	Cursorul este o variabila; asadar, pot fi returnati de catre o functie. 
+	Se poate face executia unui query primit ca parametru string folosind mycursor scroll cursor for execute (query); inainte de blocul begin-end.
+
+la 1.4 -> lateral join in plus si folosind functia de la 1.3 

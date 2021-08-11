@@ -1,0 +1,25 @@
+	~Shadowing~
+
+	Normalizare:
+	"Every non-primary attribute must provide a fact [about the key] (1NF), [the whole key] (2NF), [and nothing but the key] (3NF)."
+	1 - unicitate pe linii
+	2 - doar detalii dependente de cheie primara
+	3 - nu exista dependente de chei care nu sunt cheia primara in tabela.
+
+
+
+
+
+
+
+Studiu de caz - travel to greece
+
+Pentru login
+	 - tabela de autentificare - email, parola, token, ultima logare, daca user-ul e activ
+Mai departe:
+	- transportation type - tip (ground, aircraft, cruise ship, ferry), id
+	- inca 4 tabele pentru fiecare tip de transportare, deoarece fiecare tip de transport necesita detaliile lor specicice suplimentare (pentru aircraft, firma, numarul avionului, etc.; pentru ground - daca e cu autobuz, tren, masina, etc.) Fiecare are id-uri 
+Trebuie o tabela intermediara intre utilizatori si transportation type pentru a modela o relatie de multi la multi - e necesara si o coloana suplimentara care arata data pentru a asigura unicitatea elementelor
+Pentru overview: https://docs.google.com/spreadsheets/d/1R_QJ5YaUI2wwolBLiqXsEJXXZq58igx942b0EMnGU2Y/edit#gid=0
+tema: de imbunatatit si terminat dracia asta
+https://travel.gov.gr/#/

@@ -1,0 +1,57 @@
+Logging & Troubleshooting
+
+Oracle
+
+	Automatic Diagnostic Repository (ADR).
+	ADR are capabilitatile: 
+		Integrated log management;
+		Event Logging;
+		Incident Flood Control.
+	ADR e un framework. Cel mai important element este probabil Event Logging. Atunci cand o baza de date loveste o eroare critica sau necritica, se colecteaza un set de date de la acel moment care se impacheteaza intr-un zip file care poate fi trimis catre oracle support si analizat de ei. Se salveaza (un fel de snapshot) un log a ultimelor 20-30 minute, iar Oracle pot sa analizeze fisierele automatizat (ML, DL).
+	Mecanismul de flood control - daca exista prea multe incidente create intr-un timp foarte scurt (definit manual), se opreste generarea de fisiere de log, pentru a nu spama disk-ul.
+	Locatia efectiva a logurilor este $oracle_base/diag/rdbms(poate fi orice)/DATABASE NAME/SID NAME/.
+	SQL> SELECT name, value FROM v$diag_info;
+	Engine-ul de logging poate fi enabled sau disabled
+	Directoare: alert - cele mai importante alerte in format XML; trace - duplica alert in alt format; incident - loguri pentru evenimente sau incidente individuale; cdump - core dump a memory stack la failure.
+
+
+
+Sesiunea 2: Backup & Replication
+Backup-urile sunt foarte importante! Motive de a mentine backup-uri: hackeri, HW faults, disasters, bugs...
+Tipuri de backup: 
+	RAID: 	Raid0 - stripping - disk 1 si disk 2 lucreaza in paralel (datele de pe disk 1 se continua pe disk2)
+		Raid1 - disk 1 si disk 2 sunt clone una fata de cealalta
+		Raid5 - foloseste checksum-uri pentru protectie impotriva pierderii datelor; nu prea este folosit la baze date, deoarece este foarte incet.
+		Raid10 - Raid 1 + Raid 0 -> disk1 si disk2 sunt mirrored, disk3 si disk 4 sunt mirrored, iar grupurile de disk1, disk2 si disk3, disk4 sunt striped.
+
+	Tape Loader - LEGACY af - foloseste benzi magnetice pentru mentinerea persistenta a backup-urilor
+
+	Postgres si oracle:
+	Logical backup: export/import si data pump. Daca e nevoie de backup a doar unei tabele din baza de date, se poate face export numai unei singuri tabele, fara a salva toata baza de date. 
+	Physical backup: rezultatul unui backup fizic este un fisier binar, care face backup intregei baze de date. Pot fi online si offline. Cool backup "offline" - opresti baza de date, salvezi fisierele bazei de date in alta parte, apoi pornesti iar baza de date. Hot backup "online" - vedem in continuare.
+	Oracle: multiplexare - cum la disk-uri avem RAID, la baze de date avem multiplexare; oracle poate sa faca multiplexare la control file-uri si redo log-uri. control file-ul contine detalii despre log-uri, pe unde se afla fisierele, etc; redo log-ul - se catalogheaza schimbarile din baza de date. Nu se face multiplexare cand ai un singur disk - nu are sens, pentru ca daca moare disk-ul, oricum ai pierdut toate datele.. Oracle poate functiona in modul archive log si non-archive log. in noarchivelog - logwriter pune in logul 1, apoi log1 scrie in log2, apoi in log3, iar apoi cand se umple, log3 rescrie log 1 si se repeta. in mod archivelog - logwriter scrie in log1, iar log1 scrie in archive, log 1 scrie in log2, log2 scrie in archiver, si log 3 scrie in archiver si rescrie in log1. In oracle, se pot scrie log-uri in cam 14 destinatii. Oracle data Guard: log-urile din baza primara se trimit in o baza standby.
+	Postgres: Writeahead log-urile pot fi copiate de un proces de archiver (configurat manual), care scrie intr-o arhiva oarecare. La fel ca oracle, se poate folosi si o baza de date standby. Conceptele sunt exact la fel ca la oracle.
+
+	Tool-uri: 
+	RMAN la oracle - face de toate. Face image copies, care sunt copii 1:1 in alta locatie a bazei de date, dar poate sa faca si backup set-uri, care optimizeaza asezarea fisierelor in partea secundara.  Poate sa faca backup-uri offline. Poate sa faca backup-uri full (level 0), care copiaza intreaga baza de date (online). Poate sa faca backup-uri diferentiale (level 0), care iau datele schimbate fata de ultimul backup, si backup-uri cumulative (level 1)
+	pgBackRest la postgres - face la fel de toate.
+
+Flashback technologies - putem sa folosim SCN pentru a ne intoarce la o versiune anterioara a bazei de date; exista SELECT * FROM facturi AS OF [moment de timp] si putem sa luam elemente din baze de date in momentul ala; exista si SELECT * FROM facturi VERSIONS BETWEEN si FLASHBACK_TRANSACTION_QUERY WHERE xid=...; trebie sa ne asiguram ca datele sunt in undo log sau salvate pe undeva prin arhive!
+	Scenarii de utilizare: truncate table -> flashback logs
+		drop table -> recycle bin
+		investigate and back out suspect transactions -> undo/redo from archive logs
+
+Exista si replicare intreaga a bazelor de date pentru protectie, de exemplu, impotriva cazurilor cand nu exista acces la intregul server care tine baza de date (curent picat, inundatie, etc.). Se foloseste data guard (oracle), pentru a salva absolut toate diferentele din baza de date pe un alt server. Oracle are multe metode de backup, de exemplu golden gate, care permite chiar replicarea unei baze de date intr-un alt engine (de ex. oracle -> postgres etc.).
+Postgres are si el metode de replicare, folosind in mod special WAL-urile.
+
+Scalare: Exista scalare pe verticala si scalare pe orizontala. Scalare pe verticala inseamna adaugarea de resurse suplimentare pe o anumita masina (adaugi mai mult RAM, mai multe procesoare, etc.) Scalarea pe orizontala inseamna adaugarea de mai multe masini, dar baza de date trebuie sa fie capabila sa lucreze in modul acesta distribuit.
+
+RPO si RTO (recovery point objective & recovery time objective) - cat timp iti permiti sa ai downtime pentru baza de date si cate date iti permiti sa pierzi. Pe baza metricilor se decid strategiile pentru backup-uri, nevoile de proiectare, etc.
+
+
+comenzi:
+shutdown immediate / abort;
+startup: startup mount (te duce la faza de mount); 
+startup nomount -> alter database mount; umbli la variabile / configurari / etc. -> alter database archivelog in cazul nostru -> alter database open;
+
+configure a backup for your own database!

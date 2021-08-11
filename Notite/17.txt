@@ -1,0 +1,12 @@
+	~Shadowing~
+	Ansible & Co. cu Mihai
+
+
+	Terraform e un format / protocol / limbaj folosit pentru a automatiza AWS
+
+
+intreaba de relatia EFS - hadoop
+intreaba de automatizare pentru terraform
+
+
+DB, ETL, BI, sample data, 5 rapoarte care sa aibe sens din punctul de vedere al business-ului, eventual cloud.

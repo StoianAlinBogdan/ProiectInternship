@@ -1,0 +1,62 @@
+DQL:
+	- SELECT - folosit pentru extragerea datelor din bazele de date
+
+
+CLAUSE		ORDER#
+
+SELECT		5	
+ 
+
+FROM		1	
+ 
+
+WHERE		2	
+ 
+
+GROUP BY	3	
+ 
+
+HAVING		4	
+ 
+
+ORDER BY	6
+ 
+Explicatie: normal, trebuie mai intai sa determinam de unde facem rost de informatie; apoi, se filtreaza cat mai mult posibil rezultatele deja; apoi se grupeaza valorile si se filtreaza si acestea; se obtine proiectia si se ordoneaza.
+
+
+
+numarul de randuri dintr-un tabel postgres:
+SELECT name, ROW_NUMBER() OVER(ORDER BY name) FROM fruits;
+numarul de randuri se masoara per partitie.
+
+RANK() - returneaza prima aparitie a valorii celeilalte celule de pe acelasi rand in tabela din care se selecteaza.
+
+selectia primei aparitii a unei coloane intermediare grupate dupa o coloana din stanga se face cu partition
+
+ex: select invoice_id, invoice_data, invoice_amount, RANK() OVER (partition by invoice_data ORDER BY invoice_amount) invoice_amount_rank from invoices;
+
+partitioneaza dupa invoice_datas si afiseaza prima aparitie in coloana intermediara a valorii din acea coloana. ex natural: cand filtrezi pe un site si mai doresti sa mai adaugi un filtru
+
+DENSE_RANK() - face acelasi lucru ca RANK() dar gap-urile dintre rang-uri nu apar. Nu are nici un impact daca rang-urile sunt deja in ordine crescatoare continua. Practic, nu mai exista salturi in valorile rang-ului.
+
+
+CTE (WITH) - Common Table Expression - permite materializarea unor parti a unor selecturi si sa fie continuate in continuare in select.
+ex:
+with cte_film as (
+	SELECT film_id, title,
+	(CASE
+		when length<30 then 'short'
+		when length < 90 then 'Medium'
+		else 'Long'
+	END) length
+	FROM film
+) SELECT film_id, title, length FROM cte_film where length='Long' order by title;
+
+
+with tabela1 as (
+	SELECT artistid FROM album WHERE album.title = 'Houses Of The Holy')
+SELECT * 
+FROM album NATURAL JOIN tabela1;
+
+
+-- care sunt piesele comune (cu acelasi titlu) de pe albumele fear of the dark si a real live one ale formatiei iron maiden - vezi SQL-ul 27072021.sql pentru detalii

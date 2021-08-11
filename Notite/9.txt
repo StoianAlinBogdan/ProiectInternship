@@ -1,0 +1,48 @@
+Big Data
+
+Cei trei V:
+- Volum: cantitatea de date; tranzactiile online & offline; masurat in kb say tb; salvat in tabele, fisiere, etc.
+- Velocitate: Viteza de generare a datelor; real time; online sau offline; in streamuri, batch-uri sau biti;
+- Varietate: structurate si nestructurate; online & offline;
+
+Scopul problemelor:
+- Pretul de stocare;
+- Poate fi monetizat - data poate fi procesata pentru a obtine valoare din ea
+- Totul este personalizat - Recomandari de produse, servicii, etc.
+- Reclame, oferte promotii, facute specific pentru tine
+- Alte companii platesc pentru a mina date: Twitter Firehose, Facebook Topic Data
+Pe scurt: stocare, eficienta computationala, pierderea datelor, costul.
+
+Rezolvari: Distributie!
+Imparte un fisier de 1 TB in 100 block-uri de dimensiuni egale si citeste-le in paralel.
+
+Hadoop:
+- Dynamic Schema
+- Linear Scale
+- Batch Processing
+- Write Once, Read Many Times
+- Petabytes
+RDBMS:
+- Read Write many times
+- nonlinear scale
+- interactive and batch
+- static schema 
+- gigabytes
+
+CAP Theorem:
+- Consistency, Availability, Partition (Tolerance): Choose 2. Nu le poti avea pe toate 3. Acestea sunt cele 3 variabile unui sistem distribuit. 
+Consistenta: daca scriu la un nod si citesc de la alt nod, atunci citesc si ce am scris mai devreme.
+Availability: promisiunea ca daca interactionez cu un nod, acesta va raspunde - atata timp cat nu esueaza
+Partition: Daca partitionez sistemul, atunci raman promisiunile facute cu nodurile ramase in sistem. Ex: daca avem 2 centre de date intre care se deconecteaza conexiunea, tot ar trebui sa pot sa comunic cu una dintre ele si sa mearga.
+Practic, trebuie aleasa o variabila care sa nu functioneaze.
+
+HDFS:
+clientul trimite metadate la namenode-uri (nume, cale, dimensiunea fisierului, block size, permisiuni, etc.) si date la datanode-uri.
+Data este impartita in bucati egale, care se trimit pe mai multe datanode-uri
+
+MapReduce:
+model in programare distribuita pentru procesarea seturilor mari de date;
+poate fi implementat in orice limbaj;
+query-urile sunt distribuite pe noduri in paralel, iar apoi rezultatele sunt livrate si agregate tot in paralel.
+
+

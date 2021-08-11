@@ -1,0 +1,57 @@
+PLPGSQL este o clona pentru PLSQL-ul de la oracle.
+PLPGSQL permite anumite automatizari direct in baza de date fara a avea nevoie de o aplicatie externa care sa faca cereri repetate la baza de date.
+PLPGSQL este integrat natural in SQL. In SQL poti chema elemente din PLPGSQL fara overhead aditional.
+
+Functii vs proceduri: Functiile returneaza o valoare, pe cand procedurile nu. Procedurile sunt in general folosite pentru rularea unor procese de backend si operatii direct pe baza de date, de ex. inserturi, delete-uri, etc.
+
+ex:
+CREATE FUNCTION myfunc(parameter1, parameter2)
+RETURNS integer
+AS 'function body text' -- sau AS $$function body text$$
+LANGUAGE plpgsql;
+
+anonymous block:
+DO
+$$function body$$
+LANGUAGE plpgsql;
+
+block contents:
+DECLARE (optional)
+	/* variabile declarate */
+BEGIN (obligatoriu)
+	/* bloc-ul functional */
+EXCEPTION (optional)
+	/* exception handle */
+END; (obligatoriu)
+
+pentru parametri, se poate specifica doar tipul parametrilor, iar pentru accesul lor se poate folosi $1, $2, etc. pentru a accesa parametri in ordinea lor de la stanga la dreapta.
+altfel, se poate da parametru cu nume si se acceseaza normal. 
+exista si "alias for" pentru a da nume parametrilor after the fact.
+
+niste data type-uri care pot fi folosite pentru parametri: anyelement, anyarray, anynonarray, anyenum, anyrange
+
+pentur variabile, exista modificatorul CONSTANT, NOT NULL si DEFAULT; COLLATE este folosit pentru a specifica character set-ul in care functioneaza variabila. pentru a mosteni un data type de la o coloana din vreo tabela, se poate rezolutiona acea coloana, urmata de %TYPE.
+PERFORM - execute a statement and discard the result; useful for void functions
+SELECT INTO - assign a value to a variable using a SELECT statement:
+SELECT * INTO my_var from t_participant where cod_participant=10;
+
+
+
+Data Warehouse
+Ordinea pentru un warehouse:
+data sources -> data staging & integration area -> data storage -> data presentation
+ETL are loc intre sursele de date si zona de staging si integrare a datelor.
+exista doua tipuri principale de scheme in data warehousing:
+- star schema
+- snowflake schema
+
+schema stea:
+o tabela centrala plina de foreign key-uri care contine detalii minimale despre obiectul nostru de business si tabele secundare lipite aproape de tabela centrala care contin datele explicite. Tabela centrala se numeste "tabela de fapte", iar tabelele secundare se numesc "tabele dimensiuni". Tabela de fapte creste foarte repede, pentru fiecare intrare din fiecare dintre celelalte tabele exista cel putin un rand in tabela de fapte.
+
+schema snowflake:
+fata de schema stea, fiecare tabela de dimensiuni poate sa fie si ea sparta in alte dimensiuni. modelul snowflake este mai greu de mentinut pentru ca e mai complicat si complex. 
+
+tipuri de dimensiuni:
+- slowly changing dimension type 1 (scdt1) - in tipul 1, in warehouse exista o singura inregistrare pentru fiecare inregistrare din productie.
+- type 2 - atunci cand apare o schimbare, o appendez la warehouse, fara a updata vechea intrare, inainte de modificare
+- type 3 - valorile modificate reprezinta de fapt tuple in tabelele din warehouse; o coloana arata vechea valoare a celulei entitatii modificate, iar cealalta arata valoarea curenta. Cele doua valori sunt la fel inainte de modificare.

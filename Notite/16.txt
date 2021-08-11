@@ -1,0 +1,20 @@
+	~Shadowing~
+		BI cu Mihaela
+
+	Tableau - un software de vizualizare a datelor, pentru crearea de rapoarte si de prezentare a acestora intr-un mod grafic
+	Extragerea datelor dintr-o parte third party este necesara. Tableau se poate conecta la multiple surse de date, agregand rezultate din mai multe locatii.
+	Tableau poate folosi atat o conexiune de timp real (un stream), ori bazat pe extract, caz in care de obicei sunt foarte multe date updatatate nu foarte des.
+	Tableau poate rula si in server, iar clientii pot accesa si vizualiza toate rapoartele de pe server.
+	Tableau reader: versiune gratuita facuta strict pentru a vizualiza rapoarte create de un Tableau desktop sau de pe un tableau server	
+	Tableau server poate oferi si conexiuni la surse de date la clienti.
+
+
+
+
+
+Intreaba de materialized view pentru rapoarte
+Intreaba de user pentru tableau server
+Intreaba de data streams - cum? am vazut 'live' acolo in dreapta sus cand am selected sursele de date
+Se poate face export la un dashboard?
+
+

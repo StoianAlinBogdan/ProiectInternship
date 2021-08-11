@@ -1,0 +1,122 @@
+probleme la conectare:
+exista doua tipuri de autentificari: local sau remote; default e OS
+authentication type: os; sysdba
+connection type: local/bequeath
+pana la urma, e cum am facut eu:
+username sys, password Admin1234, role Sysdba, connection type basic, 
+hostname localhost, port 1521, SID orcl;
+
+roluri: sysdg - sysdataguard - comunicare dintre main, standby, backup, dar nu neaparat si acces la acele baze de date.
+syskm - ?
+sysasm - e in relatie cu discurile, automatic storage management, un filesystem creat de oracle, handle la partea de storage pe care se afla o baza de date; e un file system custom, distri uit, in mai multe regiuni, iar user-ul care face management la asta are nevoie de unele drepturi in plus.
+sysdba - tot
+sysoper - operations, managements, parametri,  tuning
+sysbackup - backup, etc.
+
+
+
+procese de background
+procesele de background sunt cam la fel ca niste workeri, care lucreaza un singur lucru, dar cunosc si ce fac celelalte procese (lucreaza descentralizat). 
+daca omoram PMON, process monitor, atunci crapa toata baza de date. 
+Procesele ajuta sql engine-ul, sa scrie/citeasca date de pe disc, dar si sa respecte principiile ACID. fiecare dintre procese are un rol care asigura ACID compliance. 
+look up: oracle background processes (official documentation)
+view-ul pentur procese: V$BGPROCESSES.
+Database writer (DBWn): rolul lui este de a scrie informatia din SGA pe disk. Practic, scrie bufferele (database buffer cache) pe disk.
+Log writer (LGWR): tine de redo log buffer. undo - inainte de checkpoint am undo, dupa checkpoint am redo. undo-ul se goleste separat de checkpoint. in momentul in care am dat checkpoint, redo-ul e gol. pe durata dintre doua checkpoint-uri, avem foarte multe redo log-uri. undo-ul nu e dependent de checkpoint, redo este, oarecum. log writer-ul scrie informatiile dintre checkpoint-uri pe disk.Undo files, redo files, si database files sunt toate pe disc. undo-ul tine toate datele modificate de o tranzactie inainte de a fi scris. 
+Checkpoint process: buffer cache-ul incearca sa se goleasca la un checkpoint, dar se poate sa mai existe alte tranzactii in proces care sa il umple. nu toate bufferele se golesc la checkpoint. Checkpoint-ul se intampla periodic, poate sa fie reglat,  
+SMON (System monitor) - verifica daca datele din buffere sunt scrise pe disk, monitorizeaza si celelalte procese de background si procesele legate de system monitor
+Recoverer Process (RECO) - in cazul unui cluster cu mai multe baze de date, tranzactiile se intampla distribuit. RECO tine de bazele distribuite.
+Job Queue Processes - echivalent cu cronjob din linux, e un proces de background, care in functie de niste setari, se asigura ca ruleaza mai multe job-uri; poate rula mai multe threaduri, poate rula mai multe procese, este ceva mai avansat decat un cronjob
+Archive Processes (ARCn) - toata informatia este initial scrisa pe disc in urma proceselor anterioare, dar acestea se pierd. Look up: differential backup, incremental backup. Exista si full backup. Cu differential backup, se face un full backup odata pe saptamana, de exemplu, si se salveaza zilnic, adaugand la un backup, pana se ajunge la full backup in ultima zi a saptamanii.  Pentru un backup bun, se aplica un full backup + un differential backup + redo log files pentru a ajunge la starea cea mai recenta a bazei de date.
+Restul de procese sunt specifice doar anumitor SQL Engine-uri.
+
+
+Postgres: Background writer, checkpointer, Autovacuum (SMON), WAL writer, statistics collector, logging collector.
+
+Structuri fizice si structuri logice:
+
+fizice: OS block - block size-ul pentru windows, de exemplu, este de 4 kB, pe ubuntu la fel. Structurile fizice pe disk tin de OS block. 
+Bazele noastre de date au un specific mai larg decat sistemele de operare, iar pentru a acomoda workload-urile diferite a bazelor de date, apare conceptul de database block size, care se afla undeva intre data file si os block, doar ca el nu este chiar fizic, ci este logic. Uneori, data block-ul database este chiar egal cu cel a sistmeului de operare. Daca avem un warehouse, cu selecturi mari, atunci e o idee buna sa avem un blocksize de database mai mare decat cel a sistemului de operare. Daca rulam multe DML, atunci data block-ul database ar trebui sa fie mai apropriat de OS block, cu exceptia cazurilor cand dam update / insert / delete la date foarte mari, iar atunci ar fi bun un database data block ceva mai mare. Database block size este intotdeauna egal sau mai mare cu OS block size. 
+Toate datele de la nivelul sistemului de operare sunt salvate in fisiere pe filesystem (fiserele DBF din oracle home)
+
+Logice: tablespace - un tablespace este bazat pe mai multe data file-uri (relatie 1:N dintre Tablespace is Data File). nu este o relatie fixa. volumul de date din tablespace-uri determina numarul de data file-uri. Practic, tablespace-urile sunt o grupare logica de mai multe data file-uri. Tablespace-urile sunt utile pentru accesul user-ilor la datele de pe disk, pentru ca gruparea fisierelor de pe disk optimizeaza accesul unui user la datele specifice lui.
+
+	Extent - Ex: daca incerc sa inserez un block de 5 kilo intr-o baza de date cu block size de 4 kb, se poate folosi extent size pentru a insera exact numarul necesar de octeti fara a mai irosi octeti incapsulati in database block size. Extent block size este mereu mai mic decat db block size. 
+
+	Segment - extent-urile pot sa fie grupate in segmente, de exemplu, daca inserez mai multe block-uri de 2 kb intr-o baza de date cu 4 kb; daca inserez 5 block-uri de 2 kb, atunci vor fi folosite 2 block-uri de 4 kb, din care al doilea va fi extended cu 2, pentru totalul de 10. INTREABA!!!
+	In momentul in care se creaza un data file, exista un initial extent. Data file-urile au initial o dimensiune de 32 de GB pe linux; mai exista si extents in temporary segments - folosite in special la sort-uri sau merge-uri. Daca dam un rollback pe o tabela de 300 mega cand avem un undo table space de 100 mega, nu merge. Segmentele se asigneaza unui anumit obiect, fie el index, table, orice, toate obiectele se tin intr-un tablespace
+	Lookup: Physical storage structures si logical storage structures.
+
+Write ahead log = redo log!
+
+
+Maintenance tasks
+Orice baza de date are nevoie de task-uri de mentenanta; unele sunt livrate by default, altele trebuiesc definite de catre un administrator sau un manager a bazelor de date. 
+Ex de tasks: Rework (oracle), Repack (postgres). 
+Task-uri oracle:
+Automatic segment advisor: segmentele (obiectele, tabelele) ocupa spatiu logic mult mai mult decat ocupa fizic si ar trebui reclaimed / shrinked / reorganized.
+Automatic SQL tuning advisor: da hint-uri ca ceva nu e in regula pe baza de date sau query-ul scris este cam prost, ori exista probleme pe baza de date (IO incet, etc.), si ruleaza niste task-uri si prezinta un raport cu top10 findings care ar trebui verificate.
+SQL Plan Management (SPM) Evolve Advisor: SQL performance, care va fi studiata in viitor.
+Automatic Optimizer Statistics Collector: self-describing. Este utilizat pentru alegerea optimizarilor cele mai potrivite in execution plan-ul unui query.
+Toate aceste automatizari consuma multe resurse, iar pentru rularea lor se alege de obicei o fereastra in care baza de date nu prea mai este folosita. In oracle, maintenance windows pot fi definite manual.
+
+Task-uri postgres:
+Vacuuming: repack prin eliminarea informatiei stearsa la nivel logic, fara stergere la nivel fizic, si apare fragmentare. Vacuum-ul este extrem de intens la nivel de disk. Practic, nu se mai poate folosi baza de date in timpul vacuum-ului. 
+Planner statistics: echivalent cu optimizer statistics collector.
+
+Lookup: postresql routine database maintenance tasks.
+
+
+
+Sesiunea a doua:
+Transactii & Concurenta:
+
+
+	In cazul a doua modificari succesive asupra aceluiasi rand dintr-un tabel, prima modificare aplica un lock pe acel rand, si nu permite o modificare asupra randului pana cand nu elibereaza lock-ul.
+O tranzactie este unitatea cea mai mica care poate fi modificata.
+O tranzactie poate incepe implicit sau explicit. Fiecare tranzactie are un XID (postgres) sau SCN (oracle) asociat. Postgres incepe o tranzactie chiar si pe un select.
+Tranzactiile respecta princiiple ACID: atomicitate (totul sau nimic - nu exista o tranzactie partiala, se termina cu commit sau rollback, ori toate schimbarile sunt persistate, ori toate se intorc la starea initiala). Consistenta (la sfarsitul tranzactiei, toate constrangerile trebuie sa fie valide). Izolare (pe o baza de date relationala, se pot aplica mai multe tranzactii in acelasi timp, dar trebuie sa nu acceseze aceeasi resursa - daca se acceseaza aceeasi resursa, se poate ajunge la deadlock). Durabilitate (in momentul sfarsitului tranzactiei, ce a fost comis trebuie persistat si trebuie sa ne asiguram ca datele folosite trebuiesc folosite).
+	Fiecare tranzactie are un ID unit. In oracle - SCN (system change number) - poate fi folosit pentru rollback. Mai poate fi folosit si pentru protectia tranzactiilor, sincronizarea datelor (de exemplu, daca vrem sa exportam date dintr-o baza de date in alta), read consistency, consistency checks, database recovery. 
+	Pe langa principiile ACID, foarte importante sunt nivelurile de izolare, care ajuta la evitarea unor probleme, care sunt: Dirty Read, Non Repeatable Read, Phantom Read.
+	Read Uncommited Data (dirty read) - citirea datelor care au fost modificate de o tranzactie, dar nu au fost inca comise. X modifica resursa A, Y citeste resursa A modificata, X da rollback la resursa A, Y ramane cu resursa A modificata.
+	Non Repeatable Read Anomaly: Alice incepe tranzactie, Bob incepe si el, Bob selecteaza id 1, vede X, Alice modifica pe Y, Bob citeste iar, vede Y. 
+	Phantom Read Anomaly: Bob incepe, selecteaza 3 resurse identificate de "1", Alice mai adauga o resursa identificata de "1", Bob citeste iar, obtine 4 resurse identificate de "1".
+
+Nivele de izolare: Read uncommitted - se pot intampla toate erorile;
+	Read committed - nu se poate intampla dirty read, dar se pot intampla celalte;
+	Serializable - nu se pot intampla nici una dintre probleme.
+
+Transaction deadlocks: Lookup: Oracle live SQL Deadlocks; 
+	
+Suport la nivel de engine pentru tranzactii:
+undo si redo. 
+Ex: UPDATE emp SET sal = sal * 1.1 ...; salariul vechi se duce in undo, pentru ca baza de date sa stie daca datele modificate au fost comise sau nu si sa fie capabil sa dea un rollback in caz de esec fatal;
+in undo se duce valoarea veche, in redo se duce valoarea modificata.
+La restart, se face rollforward la schimbarile care au fost comise, si se face rollback la schimbarile care nu au fost comise. Verificarea pentru comitere se face folosind SCN.
+^ astea sunt pentru oracle.
+La postgres: pentru fiecare modificare, se salveaza cate o versiune noua a randului modificat.
+Lookup pentru prostgres: interdb.jp concurrency control
+
+Pentru asigurarea consistencei unui select: daca incepem un select care dureaza foarte mult, eu vreau atunci cand rulez selectul sa primesc valorile specifice pentru timpul curent. Daca intre timp se modifica unele valori, ne uitam in undo log sau la versiunile randului pana ajungem la punctul precedent fata de timpul curent si luam valoarea veche pentru data de interes. Acest lucru se numeste segment rollback. In oracle, undo log-ul se tine pentru un timp definit (15 minute). Timpul nu se scurge in timpul in care o tranzactie este activa.
+
+Tipuri de lock-uri posibile pe resurse:
+Insert, Update, Delete - RX - exclusiv
+Select... FOR UPDATE - RS (RowShare) - aplica un lock asupra tuturor resurselor luate in vedere
+Compatibilitatea lock-urilor: Lookup: oracle - table lock modes (prezi.com)
+
+Tema pentru maine: 
+Session 1:
+Run a loop that will insert 1 row each second. You can find examples on the internet or modify the below code:
+
+Session 2: 
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+	Cloud computing
+
+	Cloud computing is the on-demand availability of computer system resources, especially data storage and computing power, without active management by the user.
+	
+Clasificare:
+	- public: cea mai comuna forma de cloud; toate serviciile si infrastructura sunt managed off-site prin internet si impartite cu mai multi utilizatori
+	- private: ofera servicii IT prin internet sau o retea privata unor utilizatori selecti, in loc de publicul general. Toate datele sunt protejate in spatele unui firewall.
+	- hybrid: combina elemente de cloud publice si private. Cloud-ul hibrid foloseste comunicatii criptate.
+	
+Trasaturi: High availability and Fault tolerance.
+
+Modele ale cloud-ului:
+IaaS, PaaS, SaaS.
+
+
+Lambda architecture:
+	Batch Layer - date care vin snopuri-snopuri si sunt procesate toate odata (batch processing)
+	Speed Layer - date continui, care trebuiesc procesate repede (stream processing)
+
+Servicii comune:
+	- S3 - object storage
+	- RDS - database as a service 
+	- HDFS - pentru batch processing
+	etc.
+
+ 	
