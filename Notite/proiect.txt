@@ -48,6 +48,7 @@ myisam_sort_buffer_size -> default = 8M -> 16M
 read_buffer_size -> default = 131k -> 1M
 read_rnd_buffer_size -> default = 262k -> 1M
 join_buffer_size -> default = 262k -> 2M
+bulk_insert_buffer_size -> default = 8M -> 16M
 
 Din pacate, ar trebui sa modific si variabile din innodb_... si myisam_... dar ca sa am voie sa fac asta trebuie sa compilez singur mysql din sursa cu flag-ul de --debug pornit
 
@@ -62,3 +63,10 @@ Pentru a vedea log-urile binare (binlog) a bazei de date, trebuie folosit utilit
 
 
 se pare ca din cand in cand in wsl se reseteaza drepturile de acces pe fisiere - asta blocheaza mysql uneori din a se porni (pentru ca nu are acces la log-urile setate manual in ~/mysql de mai sus)
+
+
+how to pipe:
+mysql -u username -p database_name < file.sql
+sau: 
+ mysql> use db_name;
+ mysql> source file_name.sql;
