@@ -56,5 +56,9 @@ slow_query_log_file -> default = /var/lib/mysql/$USER-slow.log -> ~/mysql/slowqu
 long_query_time -> default = 10s -> 5s
 log_error -> default = /var/log/mysql/error.log -> /home/alstoian/mysql/error.log
 general_log_file -> default = /var/lib/mysql/USER.log -> /home/alstoian/mysql/general.log
+log_slow_extra -> default = OFF -> ON
 
 Pentru a vedea log-urile binare (binlog) a bazei de date, trebuie folosit utilitarul mysqlbinlog - mysqlbinlog [options] log_file
+
+
+se pare ca din cand in cand in wsl se reseteaza drepturile de acces pe fisiere - asta blocheaza mysql uneori din a se porni (pentru ca nu are acces la log-urile setate manual in ~/mysql de mai sus)
