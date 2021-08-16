@@ -76,3 +76,8 @@ alte optimizari:
 innodb_buffer_pool_size -> default = 128M -> 256M
 innodb_flush_log_at_trx_commit -> default = 1 -> 2
 innodb_thread_concurrency -> default = 0 -> 8
+
+
+pentru airbyte:
+sudo dockerd > /dev/null 2>&1 &
+apoi sudo docker-compose up 
