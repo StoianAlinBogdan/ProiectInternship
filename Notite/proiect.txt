@@ -81,3 +81,8 @@ innodb_thread_concurrency -> default = 0 -> 8
 pentru airbyte:
 sudo dockerd > /dev/null 2>&1 &
 apoi sudo docker-compose up 
+
+pentru RDS:
+https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Procedural.Importing.NonRDSRepl.html
+
+connect to ec2: ssh -i C:\Users\alstoian\Downloads\mykey.pem ubuntu@ec2-3-126-209-221.eu-central-1.compute.amazonaws.com
