@@ -50,8 +50,6 @@ read_rnd_buffer_size -> default = 262k -> 1M
 join_buffer_size -> default = 262k -> 2M
 bulk_insert_buffer_size -> default = 8M -> 16M
 
-Din pacate, ar trebui sa modific si variabile din innodb_... si myisam_... dar ca sa am voie sa fac asta trebuie sa compilez singur mysql din sursa cu flag-ul de --debug pornit
-
 slow_query_log -> default = OFF -> ON
 slow_query_log_file -> default = /var/lib/mysql/$USER-slow.log -> ~/mysql/slowqueries.log
 long_query_time -> default = 10s -> 5s
